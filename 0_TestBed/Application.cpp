@@ -17,7 +17,24 @@ void ApplicationClass::Update (void)
 	m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	m_pMeshMngr->Update(); //Update the mesh information
 
-	//OctTree();
+
+	/*
+	vector3 minVec;
+	vector3 maxVec;
+
+	std::vector<vector4> v4CollidingObjects = m_pMeshMngr->GetCollisionList();
+
+	unsigned int nObjects = v4CollidingObjects.size();
+
+	for (unsigned int n = 0; n < nObjects; n++)
+	{
+	
+	}
+
+	BoundingObjectClass* pBO = m_pMeshMngr->GetBoundingObject(0);
+	pBO->GetCentroidLocal();*/
+
+	OctTree();
 
 	//First person camera movement
 	if(m_bFPC == true)
@@ -66,6 +83,7 @@ void ApplicationClass::OctTree (void)
 		{
 			max.z = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z + m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().z;
 		}
+		std::cout << i << std::endl;
 	}
 
 	vector3 centroid = (min + max) / 2.0f;
@@ -96,6 +114,12 @@ void ApplicationClass::OctTree (void)
 		halfDistance = glm::distance(vector3(0, 0, max.z), centroid);
 	}
 
-	m_pMeshMngr->AddCubeToQueue(glm::translate(centroid) * glm::scale(vector3(halfDistance * 2.0f)), vector3(1.0f, 1.0f, 1.0f));
+	//OctTree Framework
+	m_pMeshMngr->AddCubeToQueue(glm::translate(centroid) * glm::scale(vector3(halfDistance * 2.0f)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
+
+	vector3 centroidTwo = (centroid + max) / 2.0f;
+
+	m_pMeshMngr->AddCubeToQueue(glm::translate(centroidTwo) * glm::scale(vector3(halfDistance)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
 }
+
 

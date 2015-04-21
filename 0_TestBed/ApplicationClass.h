@@ -53,6 +53,8 @@ public:
 	*/
 	void Run (void);
 
+	void OctTree (void);
+
 	/*
 	GenerateBoundingSphere
 		Calculates a sphere that involves the model specified by name under the provided matrix
@@ -74,8 +76,6 @@ private:
 		Updates the scene
 	*/
 	void Update (void);
-
-	void OctTree(void);
 
 	/*
 	Display
