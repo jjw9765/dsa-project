@@ -83,42 +83,42 @@ void ApplicationClass::OctTree (void)
 		{
 			max.z = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z + m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().z;
 		}
-		std::cout << i << std::endl;
 	}
 
 	vector3 centroid = (min + max) / 2.0f;
 	float halfDistance = 0;
 
-	if (glm::distance(vector3(min.x, 0, 0), centroid))
+	if (halfDistance < glm::distance(vector3(min.x, 0, 0), centroid))
 	{
 		halfDistance = glm::distance(vector3(min.x, 0, 0), centroid);
 	}
-	if (glm::distance(vector3(0, min.y, 0), centroid))
+	if (halfDistance < glm::distance(vector3(0, min.y, 0), centroid))
 	{
 		halfDistance = glm::distance(vector3(0, min.y, 0), centroid);
 	}
-	if (glm::distance(vector3(0, 0, min.z), centroid))
+	if (halfDistance < glm::distance(vector3(0, 0, min.z), centroid))
 	{
 		halfDistance = glm::distance(vector3(0, 0, min.z), centroid);
 	}
-	if (glm::distance(vector3(max.x, 0, 0), centroid))
+	if (halfDistance < glm::distance(vector3(max.x, 0, 0), centroid))
 	{
 		halfDistance = glm::distance(vector3(max.x, 0, 0), centroid);
 	}
-	if (glm::distance(vector3(0, max.y, 0), centroid))
+	if (halfDistance < glm::distance(vector3(0, max.y, 0), centroid))
 	{
 		halfDistance = glm::distance(vector3(0, max.y, 0), centroid);
 	}
-	if (glm::distance(vector3(0, 0, max.z), centroid))
+	if (halfDistance < glm::distance(vector3(0, 0, max.z), centroid))
 	{
 		halfDistance = glm::distance(vector3(0, 0, max.z), centroid);
 	}
 
 	//OctTree Framework
+	m_pMeshMngr->AddAxisToQueue(glm::translate(centroid));
 	m_pMeshMngr->AddCubeToQueue(glm::translate(centroid) * glm::scale(vector3(halfDistance * 2.0f)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
 
 	vector3 centroidTwo = (centroid + max) / 2.0f;
-
+	m_pMeshMngr->AddAxisToQueue(glm::translate(centroidTwo));
 	m_pMeshMngr->AddCubeToQueue(glm::translate(centroidTwo) * glm::scale(vector3(halfDistance)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
 }
 
