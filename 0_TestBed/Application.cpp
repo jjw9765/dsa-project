@@ -3,13 +3,22 @@ void ApplicationClass::InitUserAppVariables()
 {
 	m_pCamera->SetPosition(vector3(0.0f, 0.0f, 15.0f));
 
-	m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Steve.obj", "Steve");
-
-	for (int nCreepers = 0; nCreepers  < 20; nCreepers ++)
-	{
-		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Creeper.obj", "Creeper", glm::translate(glm::sphericalRand(5.0f)));
-	}
+	// random seed, create rand vector positions
+	srand((unsigned int)time(NULL));
+	float randX;
+	float randY;
+	float randZ;
 	
+	// for each enemy, create a random vector3
+	for (int nEnemy = 0; nEnemy  < 7; nEnemy ++)
+	{
+		randX = (float)(rand() % 6 - 3);
+		randY = (float)(rand() % 6 - 3);
+		randZ = (float)(rand() % 6 - 3);
+
+		// load the enemy
+		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)));
+	}
 }
 void ApplicationClass::Update (void)
 {
@@ -17,23 +26,7 @@ void ApplicationClass::Update (void)
 	m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	m_pMeshMngr->Update(); //Update the mesh information
 
-
-	/*
-	vector3 minVec;
-	vector3 maxVec;
-
-	std::vector<vector4> v4CollidingObjects = m_pMeshMngr->GetCollisionList();
-
-	unsigned int nObjects = v4CollidingObjects.size();
-
-	for (unsigned int n = 0; n < nObjects; n++)
-	{
-	
-	}
-
-	BoundingObjectClass* pBO = m_pMeshMngr->GetBoundingObject(0);
-	pBO->GetCentroidLocal();*/
-
+	// OctTree this game up
 	OctTree();
 
 	//First person camera movement
@@ -51,75 +44,97 @@ void ApplicationClass::Update (void)
 
 void ApplicationClass::OctTree (void)
 {
-	//std::vector<BoundingObjectClass*>name;
-	vector3 min = m_pMeshMngr->GetBoundingObject(0)->GetCentroidGlobal();
-	vector3 max = m_pMeshMngr->GetBoundingObject(0)->GetCentroidGlobal();
-	
-	for (int i = 1; i < m_pMeshMngr->GetNumberOfInstances(); i++)
-	{
-		if (min.x > m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().x)
-		{
-			min.x = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().x - m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().x;
-		}
-		else if (max.x < m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().x)
-		{
-			max.x = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().x + m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().x;
-		}
+	// create variables and the likes
+	std::vector<BoundingObjectClass*> listObjects;
+	int numInstances = m_pMeshMngr->GetNumberOfInstances();
+	vector3 rootMin;
+	vector3 rootMax;
+	vector3 rootCentroid;
 
-		if (min.y > m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().y)
-		{
-			min.y = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().y - m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().y;
-		}
-		else if (max.y < m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().y)
-		{
-			max.y = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().y + m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().y;
-		}
+	// populate the vector with all objects
+	for (int i = 0; i < numInstances; i++)
+		listObjects.push_back(m_pMeshMngr->GetBoundingObject(i));
 
-		if (min.z > m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z)
-		{
-			min.z = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z - m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().z;
-		}
-		else if (max.z < m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z)
-		{
-			max.z = m_pMeshMngr->GetBoundingObject(i)->GetCentroidGlobal().z + m_pMeshMngr->GetBoundingObject(i)->GetHalfWidth().z;
-		}
-	}
+	rootMin = listObjects[0]->GetCentroidGlobal() - listObjects[0]->GetHalfWidth();
+	rootMax = listObjects[0]->GetCentroidGlobal() + listObjects[0]->GetHalfWidth();
 
-	vector3 centroid = (min + max) / 2.0f;
-	float halfDistance = 0;
+	// find the min/max of the root cube by going through each object and calculating its bounds
+	for (BoundingObjectClass* boInstance : listObjects)
+	{
+		if (rootMin.x > boInstance->GetCentroidGlobal().x - boInstance->GetHalfWidth().x)
+			rootMin.x = boInstance->GetCentroidGlobal().x - boInstance->GetHalfWidth().x;
+		else if (rootMax.x < boInstance->GetCentroidGlobal().x + boInstance->GetHalfWidth().x)
+			rootMax.x = boInstance->GetCentroidGlobal().x + boInstance->GetHalfWidth().x;
 
-	if (halfDistance < glm::distance(vector3(min.x, 0, 0), centroid))
-	{
-		halfDistance = glm::distance(vector3(min.x, 0, 0), centroid);
-	}
-	if (halfDistance < glm::distance(vector3(0, min.y, 0), centroid))
-	{
-		halfDistance = glm::distance(vector3(0, min.y, 0), centroid);
-	}
-	if (halfDistance < glm::distance(vector3(0, 0, min.z), centroid))
-	{
-		halfDistance = glm::distance(vector3(0, 0, min.z), centroid);
-	}
-	if (halfDistance < glm::distance(vector3(max.x, 0, 0), centroid))
-	{
-		halfDistance = glm::distance(vector3(max.x, 0, 0), centroid);
-	}
-	if (halfDistance < glm::distance(vector3(0, max.y, 0), centroid))
-	{
-		halfDistance = glm::distance(vector3(0, max.y, 0), centroid);
-	}
-	if (halfDistance < glm::distance(vector3(0, 0, max.z), centroid))
-	{
-		halfDistance = glm::distance(vector3(0, 0, max.z), centroid);
+		if (rootMin.y > boInstance->GetCentroidGlobal().y - boInstance->GetHalfWidth().y)
+			rootMin.y = boInstance->GetCentroidGlobal().y - boInstance->GetHalfWidth().y;
+		else if (rootMax.y < boInstance->GetCentroidGlobal().y + boInstance->GetHalfWidth().y)
+			rootMax.y = boInstance->GetCentroidGlobal().y + boInstance->GetHalfWidth().y;
+
+		if (rootMin.z > boInstance->GetCentroidGlobal().z - boInstance->GetHalfWidth().z)
+			rootMin.z = boInstance->GetCentroidGlobal().z - boInstance->GetHalfWidth().z;
+		else if (rootMax.z < boInstance->GetCentroidGlobal().z + boInstance->GetHalfWidth().z)
+			rootMax.z = boInstance->GetCentroidGlobal().z + boInstance->GetHalfWidth().z;
 	}
 
-	//OctTree Framework
-	m_pMeshMngr->AddAxisToQueue(glm::translate(centroid));
-	m_pMeshMngr->AddCubeToQueue(glm::translate(centroid) * glm::scale(vector3(halfDistance * 2.0f)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
+	// find the centroid of the root cube
+	rootCentroid = (rootMin + rootMax) / 2.0f;
 
-	vector3 centroidTwo = (centroid + max) / 2.0f;
-	m_pMeshMngr->AddAxisToQueue(glm::translate(centroidTwo));
-	m_pMeshMngr->AddCubeToQueue(glm::translate(centroidTwo) * glm::scale(vector3(halfDistance)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
+	// this is the edge length of the root cube
+	float edgeLength = 0;
+
+	// calculate that shit
+	if (edgeLength < glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0)))
+		edgeLength = glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0));
+	if (edgeLength < glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0)))
+		edgeLength = glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0));
+	if (edgeLength < glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0)))
+		edgeLength = glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0));
+
+	// OctTree Root Framework
+	m_pMeshMngr->AddAxisToQueue(glm::translate(rootCentroid));
+	m_pMeshMngr->AddCubeToQueue(glm::translate(rootCentroid) * glm::scale(vector3(edgeLength)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
+
+	// iterate to get 8 subdivs
+	vector3 subdivCentroid;
+	float subdivEdge = edgeLength/4.0f;
+	for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
+	{
+		subdivCentroid = rootCentroid;
+
+		// subdivs are described by how you face them
+		switch(numSubdiv)
+		{
+			case 0:	//	Front Top Right
+				subdivCentroid += vector3(subdivEdge);
+				break;
+			case 1:	//	Front Top Left
+				subdivCentroid += vector3(-subdivEdge, subdivEdge, subdivEdge);
+				break;
+			case 2:	//	Front Bottom Left
+				subdivCentroid += vector3(-subdivEdge, -subdivEdge, subdivEdge);
+				break;
+			case 3:	//	Front Bottom Right
+				subdivCentroid += vector3(subdivEdge, -subdivEdge, subdivEdge);
+				break;
+			case 4:	//	Rear Top Right
+				subdivCentroid += vector3(subdivEdge, subdivEdge, -subdivEdge);
+				break;
+			case 5:	//	Rear Top Left
+				subdivCentroid += vector3(-subdivEdge, subdivEdge, -subdivEdge);
+				break;
+			case 6:	//	Rear Bottom Left
+				subdivCentroid -= vector3(subdivEdge);
+				break;
+			case 7:	//	Rear Bottom Right
+				subdivCentroid += vector3(subdivEdge, -subdivEdge, -subdivEdge);
+				break;
+		}
+
+		// add to render queue
+		m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
+		m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(edgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+	}
 }
 
 
