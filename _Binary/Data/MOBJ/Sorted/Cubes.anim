@@ -1,0 +1,33 @@
+animVersion 1.1;
+mayaVersion 2014;
+timeUnit film;
+linearUnit cm;
+angularUnit deg;
+startTime 0;
+endTime 240;
+anim rotate.rotateZ rotateZ Cube1 0 2 0;
+animData {
+  input time;
+  output angular;
+  weighted 0;
+  preInfinity constant;
+  postInfinity constant;
+  keys {
+    0 -45 auto auto 1 1 0;
+    240 0 auto auto 1 1 0;
+  }
+}
+anim Cube1 1 0 0;
+anim rotate.rotateZ rotateZ Cube2 0 1 0;
+animData {
+  input time;
+  output angular;
+  weighted 0;
+  preInfinity constant;
+  postInfinity constant;
+  keys {
+    0 -45 auto auto 1 1 0;
+    240 0 auto auto 1 1 0;
+  }
+}
+anim Cube2 1 0 0;

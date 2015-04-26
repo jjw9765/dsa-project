@@ -55,6 +55,8 @@ public:
 
 	void OctTree (void);
 
+	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid);
+
 	/*
 	GenerateBoundingSphere
 		Calculates a sphere that involves the model specified by name under the provided matrix
@@ -157,7 +159,7 @@ private:
 		Manages the rotation of the camera
 		a_fSpeed is a factor of change
 	*/
-	void CameraRotation(float a_fSpeed = 0.001f);
+	void CameraRotation(float a_fSpeed = 0.0005f);
 
 	/*
 	ReadConfig

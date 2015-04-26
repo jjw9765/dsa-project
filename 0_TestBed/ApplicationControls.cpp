@@ -122,6 +122,7 @@ void ApplicationClass::ProcessKeyboard(void)
 	}
 
 	//Camera
+	/*
 #pragma region Camera
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		m_pCamera->MoveForward(fSpeed);
@@ -135,6 +136,7 @@ void ApplicationClass::ProcessKeyboard(void)
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		m_pCamera->MoveSideways(fSpeed);
 	m_pCamera->CalculateView();
+	*/
 #pragma endregion
 }
 void ApplicationClass::ProcessMouse(void)

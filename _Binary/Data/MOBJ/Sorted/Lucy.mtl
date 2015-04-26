@@ -1,0 +1,10 @@
+newmtl lucy_low:_1___Default
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd Lucy_diffuse_metal.jpg
+bump Lucy_NormalsMap.tga
+Ni 1.00
+Ks 0.97 0.87 0.56
+Ns 13.00

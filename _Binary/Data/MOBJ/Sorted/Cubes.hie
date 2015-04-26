@@ -1,0 +1,4 @@
+HP: 2
+#Group -> Parent (Collidable) (HP) (Pivot.x, Pivot.y, Pivot.z)
+Cube1 -> NULL (1) (1) ( 0.0, 0.0, 0.0 )
+Cube2 -> Cube1 (1) (1) ( 0.0, 1.0, 0.0 )

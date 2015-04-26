@@ -1,0 +1,47 @@
+newmtl Cabeza
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Beto_skin_hi.jpg
+Ni 5.00
+Ks 0.90 0.90 0.90
+Ns 0.06
+newmtl OjoL
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Beto_eyeL_hi.jpg
+Ni 5.00
+Ks 0.50 0.50 0.50
+Ns 0.06
+newmtl OjoR
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Beto_eyeR_hi.jpg
+Ni 5.00
+Ks 0.50 0.50 0.50
+Ns 0.06
+newmtl RE5:d9bbdc1_dds
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd 3d9bbdc1.png
+map_Ka 3d9bbdc1.png
+Ni 1.50
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl RE5:ec93f_dds
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd 566ec93f.png
+map_Ka 566ec93f.png
+Ni 1.50
+Ks 0.00 0.00 0.00
+Ns 0.00

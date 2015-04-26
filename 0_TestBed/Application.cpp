@@ -8,16 +8,18 @@ void ApplicationClass::InitUserAppVariables()
 	float randX;
 	float randY;
 	float randZ;
+	int maxSpawnDistance = 10;
 	
 	// for each enemy, create a random vector3
-	for (int nEnemy = 0; nEnemy  < 7; nEnemy ++)
+	for (int nEnemy = 0; nEnemy < 10; nEnemy ++)
 	{
-		randX = (float)(rand() % 6 - 3);
-		randY = (float)(rand() % 6 - 3);
-		randZ = (float)(rand() % 6 - 3);
+		// randomly places in a cube with volume of maxSpawnDistance^3, but center spawn point is world origin
+		randX = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+		randY = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+		randZ = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 
 		// load the enemy
-		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)));
+		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)) * glm::scale(vector3(0.5f)));
 	}
 }
 void ApplicationClass::Update (void)
@@ -137,4 +139,46 @@ void ApplicationClass::OctTree (void)
 	}
 }
 
+void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCentroid)
+{
+	// iterate to get 8 subdivs
+	vector3 subdivCentroid;
+	float subdivEdge = parentEdgeLength/4.0f;
+	for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
+	{
+		subdivCentroid = parentCentroid;
 
+		// subdivs are described by how you face them
+		switch(numSubdiv)
+		{
+			case 0:	//	Front Top Right
+				subdivCentroid += vector3(subdivEdge);
+				break;
+			case 1:	//	Front Top Left
+				subdivCentroid += vector3(-subdivEdge, subdivEdge, subdivEdge);
+				break;
+			case 2:	//	Front Bottom Left
+				subdivCentroid += vector3(-subdivEdge, -subdivEdge, subdivEdge);
+				break;
+			case 3:	//	Front Bottom Right
+				subdivCentroid += vector3(subdivEdge, -subdivEdge, subdivEdge);
+				break;
+			case 4:	//	Rear Top Right
+				subdivCentroid += vector3(subdivEdge, subdivEdge, -subdivEdge);
+				break;
+			case 5:	//	Rear Top Left
+				subdivCentroid += vector3(-subdivEdge, subdivEdge, -subdivEdge);
+				break;
+			case 6:	//	Rear Bottom Left
+				subdivCentroid -= vector3(subdivEdge);
+				break;
+			case 7:	//	Rear Bottom Right
+				subdivCentroid += vector3(subdivEdge, -subdivEdge, -subdivEdge);
+				break;
+		}
+
+		// add to render queue
+		m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
+		m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(parentEdgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+	}
+}
