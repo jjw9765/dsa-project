@@ -97,88 +97,57 @@ void ApplicationClass::OctTree (void)
 	m_pMeshMngr->AddAxisToQueue(glm::translate(rootCentroid));
 	m_pMeshMngr->AddCubeToQueue(glm::translate(rootCentroid) * glm::scale(vector3(edgeLength)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
 
-	// iterate to get 8 subdivs
-	vector3 subdivCentroid;
-	float subdivEdge = edgeLength/4.0f;
-	for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
-	{
-		subdivCentroid = rootCentroid;
-
-		// subdivs are described by how you face them
-		switch(numSubdiv)
-		{
-			case 0:	//	Front Top Right
-				subdivCentroid += vector3(subdivEdge);
-				break;
-			case 1:	//	Front Top Left
-				subdivCentroid += vector3(-subdivEdge, subdivEdge, subdivEdge);
-				break;
-			case 2:	//	Front Bottom Left
-				subdivCentroid += vector3(-subdivEdge, -subdivEdge, subdivEdge);
-				break;
-			case 3:	//	Front Bottom Right
-				subdivCentroid += vector3(subdivEdge, -subdivEdge, subdivEdge);
-				break;
-			case 4:	//	Rear Top Right
-				subdivCentroid += vector3(subdivEdge, subdivEdge, -subdivEdge);
-				break;
-			case 5:	//	Rear Top Left
-				subdivCentroid += vector3(-subdivEdge, subdivEdge, -subdivEdge);
-				break;
-			case 6:	//	Rear Bottom Left
-				subdivCentroid -= vector3(subdivEdge);
-				break;
-			case 7:	//	Rear Bottom Right
-				subdivCentroid += vector3(subdivEdge, -subdivEdge, -subdivEdge);
-				break;
-		}
-
-		// add to render queue
-		m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
-		m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(edgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
-	}
+	recursiveOctTree(edgeLength, rootCentroid, 1);
 }
 
-void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCentroid)
+void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCentroid, int iteration)
 {
-	// iterate to get 8 subdivs
-	vector3 subdivCentroid;
-	float subdivEdge = parentEdgeLength/4.0f;
-	for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
+	if (iteration > 0)
 	{
-		subdivCentroid = parentCentroid;
+		iteration--;
 
-		// subdivs are described by how you face them
-		switch(numSubdiv)
+		// iterate to get 8 subdivs
+		vector3 subdivCentroid;
+		float subdivEdge = parentEdgeLength/4.0f;
+		for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
 		{
-			case 0:	//	Front Top Right
-				subdivCentroid += vector3(subdivEdge);
-				break;
-			case 1:	//	Front Top Left
-				subdivCentroid += vector3(-subdivEdge, subdivEdge, subdivEdge);
-				break;
-			case 2:	//	Front Bottom Left
-				subdivCentroid += vector3(-subdivEdge, -subdivEdge, subdivEdge);
-				break;
-			case 3:	//	Front Bottom Right
-				subdivCentroid += vector3(subdivEdge, -subdivEdge, subdivEdge);
-				break;
-			case 4:	//	Rear Top Right
-				subdivCentroid += vector3(subdivEdge, subdivEdge, -subdivEdge);
-				break;
-			case 5:	//	Rear Top Left
-				subdivCentroid += vector3(-subdivEdge, subdivEdge, -subdivEdge);
-				break;
-			case 6:	//	Rear Bottom Left
-				subdivCentroid -= vector3(subdivEdge);
-				break;
-			case 7:	//	Rear Bottom Right
-				subdivCentroid += vector3(subdivEdge, -subdivEdge, -subdivEdge);
-				break;
-		}
+			subdivCentroid = parentCentroid;
 
-		// add to render queue
-		m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
-		m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(parentEdgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+			// subdivs are described by how you face them
+			switch(numSubdiv)
+			{
+				case 0:	//	Front Top Right
+					subdivCentroid += vector3(subdivEdge);
+					break;
+				case 1:	//	Front Top Left
+					subdivCentroid += vector3(-subdivEdge, subdivEdge, subdivEdge);
+					break;
+				case 2:	//	Front Bottom Left
+					subdivCentroid += vector3(-subdivEdge, -subdivEdge, subdivEdge);
+					break;
+				case 3:	//	Front Bottom Right
+					subdivCentroid += vector3(subdivEdge, -subdivEdge, subdivEdge);
+					break;
+				case 4:	//	Rear Top Right
+					subdivCentroid += vector3(subdivEdge, subdivEdge, -subdivEdge);
+					break;
+				case 5:	//	Rear Top Left
+					subdivCentroid += vector3(-subdivEdge, subdivEdge, -subdivEdge);
+					break;
+				case 6:	//	Rear Bottom Left
+					subdivCentroid -= vector3(subdivEdge);
+					break;
+				case 7:	//	Rear Bottom Right
+					subdivCentroid += vector3(subdivEdge, -subdivEdge, -subdivEdge);
+					break;
+			}
+
+			// add to render queue
+			m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
+			m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(parentEdgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+
+			recursiveOctTree(parentEdgeLength / 2.0f, subdivCentroid, iteration);
+		}
+		
 	}
 }

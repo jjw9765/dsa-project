@@ -30,7 +30,7 @@ void ApplicationClass::InitAppSystem(void)
 	m_v4ClearColor = vector4(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
 		
 	// Indicate window properties
-	m_pSystem->WindowName = "Octree";
+	m_pSystem->WindowName = "Airship Assault!";
 	m_pSystem->WindowWidth = 1280;
 	m_pSystem->WindowHeight = 720;
 	m_pSystem->WindowFullscreen = false;

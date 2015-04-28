@@ -55,7 +55,7 @@ public:
 
 	void OctTree (void);
 
-	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid);
+	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid, int iteration);
 
 	/*
 	GenerateBoundingSphere
