@@ -131,24 +131,24 @@ void ApplicationClass::OctTree (void)
 	if (edgeLength < glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0)))
 		edgeLength = glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0));
 
-	// OctTree Root Framework
-	m_pMeshMngr->AddAxisToQueue(glm::translate(rootCentroid));
-	m_pMeshMngr->AddCubeToQueue(glm::translate(rootCentroid) * glm::scale(vector3(edgeLength)), vector3(1.0f, 1.0f, 1.0f), MERENDER::WIRE);
-
-	recursiveOctTree(edgeLength, rootCentroid, 1);
+	recursiveOctTree(edgeLength, rootCentroid, 5, listObjects);
 }
 
-void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCentroid, int iteration)
+void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCentroid, int iteration, std::vector<BoundingObjectClass*> listObjects)
 {
 	if (iteration > 0)
 	{
 		iteration--;
 
+		std::vector<BoundingObjectClass*> containedObjects = std::vector<BoundingObjectClass*>();
+
 		// iterate to get 8 subdivs
 		vector3 subdivCentroid;
 		float subdivEdge = parentEdgeLength/4.0f;
+		
 		for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
 		{
+			containedObjects.clear();
 			subdivCentroid = parentCentroid;
 
 			// subdivs are described by how you face them
@@ -181,11 +181,30 @@ void ApplicationClass::recursiveOctTree(float parentEdgeLength, vector3 parentCe
 			}
 
 			// add to render queue
-			m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
-			m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(parentEdgeLength/2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+			//m_pMeshMngr->AddAxisToQueue(glm::translate(subdivCentroid));
+			
+			for (int i = 0; i < listObjects.size(); i++)
+			{
+				if (listObjects[i]->GetCentroidGlobal().x > subdivCentroid.x - subdivEdge &&
+					listObjects[i]->GetCentroidGlobal().x < subdivCentroid.x + subdivEdge &&
+					listObjects[i]->GetCentroidGlobal().y > subdivCentroid.y - subdivEdge &&
+					listObjects[i]->GetCentroidGlobal().y < subdivCentroid.y + subdivEdge &&
+					listObjects[i]->GetCentroidGlobal().z > subdivCentroid.z - subdivEdge &&
+					listObjects[i]->GetCentroidGlobal().z < subdivCentroid.z + subdivEdge)
+				{
+					containedObjects.push_back(listObjects[i]);
+				}
+			}
 
-			recursiveOctTree(parentEdgeLength / 2.0f, subdivCentroid, iteration);
+			if (containedObjects.size() > 0)
+			{
+				m_pMeshMngr->AddCubeToQueue(glm::translate(subdivCentroid) * glm::scale(vector3(parentEdgeLength / 2.0f)), vector3(0.7f, 0.0f, 0.0f), MERENDER::WIRE);
+
+				if (containedObjects.size() > 1)
+				{
+					recursiveOctTree(parentEdgeLength / 2.0f, subdivCentroid, iteration, containedObjects);
+				}
+			}
 		}
-		
 	}
 }

@@ -57,7 +57,7 @@ public:
 
 	void OctTree (void);
 
-	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid, int iteration);
+	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid, int iteration, std::vector<BoundingObjectClass*> containedObjects);
 
 	void Physics(float fTimeSpan, float fRunTime, vector3 v3direction);
 
