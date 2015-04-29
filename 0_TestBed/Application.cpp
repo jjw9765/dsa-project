@@ -20,13 +20,28 @@ void ApplicationClass::InitUserAppVariables()
 
 		// load the enemy
 		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)) * glm::scale(vector3(0.5f)));
+
+
+		//set initial sphere location
+		m_m4Sphere = glm::translate(vector3(0.0f,1.0f,15.0f));
 	}
 }
 void ApplicationClass::Update (void)
 {
+	//time stuff
 	m_pSystem->UpdateTime(); //Update the system
+	float fTimeSpan = m_pSystem->LapClock(0);//check time difference between method calls
+	static float fRunTime = 0.0f;
+	fRunTime += fTimeSpan;
+
 	m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	m_pMeshMngr->Update(); //Update the mesh information
+
+	//will be the direction of camera, scaled by some shit I'll figure out later.
+	vector3 v3direction = vector3(0.0f, 0.0f, -30.0f);
+	//sphere physics calculations
+	Physics(fTimeSpan,fRunTime, v3direction);
+	
 
 	// OctTree this game up
 	OctTree();
@@ -42,6 +57,14 @@ void ApplicationClass::Update (void)
 	}
 
 	printf("FPS: %d\r", m_pSystem->FPS);//print the Frames per Second	
+}
+
+void ApplicationClass::Physics(float fTimeSpan, float fRunTime, vector3 v3direction)
+{
+	matrix4 gravity = glm::translate(vector3(0.0f,fRunTime * -0.1f,0.0f));
+	matrix4 translate = glm::translate(fTimeSpan * v3direction);
+	m_m4Sphere = m_m4Sphere * translate * gravity;
+	m_pMeshMngr->AddSphereToQueue(m_m4Sphere);
 }
 
 void ApplicationClass::OctTree (void)

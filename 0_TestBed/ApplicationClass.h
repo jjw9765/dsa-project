@@ -20,6 +20,8 @@ class ApplicationClass
 	String m_sSelectedObject;//Selected Object
 	matrix4 m_m4SelectedObject;//Creeper Model Matrix
 
+	matrix4 m_m4Sphere;//sphere model matrix (cannon ball)
+
 	//Standard variables
 	static ApplicationClass* m_pInstance; // Singleton for this class
 	SystemSingleton* m_pSystem;// Singleton of the system
@@ -56,6 +58,8 @@ public:
 	void OctTree (void);
 
 	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid, int iteration);
+
+	void Physics(float fTimeSpan, float fRunTime, vector3 v3direction);
 
 	/*
 	GenerateBoundingSphere
