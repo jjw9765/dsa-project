@@ -34,11 +34,26 @@ void ApplicationClass::Update (void)
 	static float fRunTime = 0.0f;
 	fRunTime += fTimeSpan;
 
+//generate random direction until we start using camera direction
+	float randX = (float)(rand() % 100);
+		float randY = (float)(rand() % 25);
+		float randZ = (float)(rand() % 100);
+
+		if(randX > 50)
+		{ 
+			randX -= 50.0f;
+			randX *= -1.0f;
+		}
+
+	static vector3 v3direction = vector3(randX,randY,randZ * -1.0f);
+	v3direction = glm::normalize(v3direction);
+//delete between these comments when camera direction is working
+
 	m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	m_pMeshMngr->Update(); //Update the mesh information
 
 	//will be the direction of camera, scaled by some shit I'll figure out later.
-	vector3 v3direction = vector3(0.0f, 0.0f, -30.0f);
+	//vector3 v3direction = vector3();
 	//sphere physics calculations
 	Physics(fTimeSpan,fRunTime, v3direction);
 	
@@ -62,7 +77,7 @@ void ApplicationClass::Update (void)
 void ApplicationClass::Physics(float fTimeSpan, float fRunTime, vector3 v3direction)
 {
 	matrix4 gravity = glm::translate(vector3(0.0f,fRunTime * -0.1f,0.0f));
-	matrix4 translate = glm::translate(fTimeSpan * v3direction);
+	matrix4 translate = glm::translate(fTimeSpan * (v3direction * 30.0f));
 	m_m4Sphere = m_m4Sphere * translate * gravity;
 	m_pMeshMngr->AddSphereToQueue(m_m4Sphere);
 }
