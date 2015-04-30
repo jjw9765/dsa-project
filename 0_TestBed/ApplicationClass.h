@@ -35,6 +35,8 @@ class ApplicationClass
 	GridClass* m_pGrid; // Grid that represents the Coordinate System
 	CameraSingleton* m_pCamera; // Singleton for the camera that represents our scene
 	vector4 m_v4ClearColor;//Color of the scene
+
+	std::vector<BoundingObjectClass*> listObjects; // A vector to hold all objects that were created at Runtime
 	
 public:
 	/*
@@ -55,10 +57,7 @@ public:
 	*/
 	void Run (void);
 
-	void OctTree (void);
-
-	void recursiveOctTree (float parentEdgeLength, vector3 parentCentroid, int iteration, std::vector<BoundingObjectClass*> containedObjects);
-
+	// to use for the cannonball, and eventually the enemy ships
 	void Physics(float fTimeSpan, float fRunTime, vector3 v3direction);
 
 	/*

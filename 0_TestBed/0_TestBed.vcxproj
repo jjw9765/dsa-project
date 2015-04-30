@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ECA9D8B3-C333-4453-8FBD-E36E034B4D3B}</ProjectGuid>
     <RootNamespace>0_TestBed</RootNamespace>
-    <ProjectName>Octree start</ProjectName>
+    <ProjectName>Airship Assault</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -109,6 +109,7 @@ xcopy "$(SolutionDir)include\ME\Shaders" "$(SolutionDir)_Binary\Shaders" /y</Com
     <ClInclude Include="..\res\Resource.h" />
     <ClInclude Include="ApplicationClass.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="OctantCustom.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\BTO.rc" />
@@ -118,6 +119,7 @@ xcopy "$(SolutionDir)include\ME\Shaders" "$(SolutionDir)_Binary\Shaders" /y</Com
     <ClCompile Include="ApplicationClass.cpp" />
     <ClCompile Include="ApplicationControls.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="OctantCustom.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
