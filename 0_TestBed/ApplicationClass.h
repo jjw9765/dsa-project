@@ -21,6 +21,9 @@ class ApplicationClass
 	matrix4 m_m4SelectedObject;//Creeper Model Matrix
 
 	matrix4 m_m4Sphere;//sphere model matrix (cannon ball)
+	vector3 m_v3Direction;//sphere direction
+
+	float m_fShotTime;//time since last shot
 
 	//Standard variables
 	static ApplicationClass* m_pInstance; // Singleton for this class
