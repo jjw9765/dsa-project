@@ -1,5 +1,6 @@
 #include "ApplicationClass.h"
 #include "OctantCustom.h"
+#include <vector>
 
 void ApplicationClass::InitUserAppVariables()
 {
@@ -11,6 +12,7 @@ void ApplicationClass::InitUserAppVariables()
 	float randY;
 	float randZ;
 	int maxSpawnDistance = 10;
+	std::vector<vector3> enemyLocs;
 	
 	// for each enemy, create a random vector3
 	for (int nEnemy = 0; nEnemy < 10; nEnemy ++)
@@ -19,7 +21,28 @@ void ApplicationClass::InitUserAppVariables()
 		randX = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 		randY = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 		randZ = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+		enemyLocs.push_back(vector3(randX, randY, randZ));
 
+		//Make sure enemies aren't placed inside eachother
+		if(nEnemy > 0){
+
+			for(int j = 0; j < enemyLocs.size(); j++){
+
+				if(randX <= enemyLocs[j].x + 150 && randX >= enemyLocs[j].x - 150){
+					randX = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+				}
+
+				if(randY <= enemyLocs[j].y + 150 && randY >= enemyLocs[j].y - 150){
+					randY = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+				}
+
+				if(randZ <= enemyLocs[j].z + 150 && randZ >= enemyLocs[j].z - 150){
+					randZ = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
+				}
+			}
+		
+		}
+		
 		// load the enemy
 		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)) * glm::scale(vector3(0.5f)));
 

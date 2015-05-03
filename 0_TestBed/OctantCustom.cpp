@@ -127,9 +127,25 @@ void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vecto
 			}
 
 			// create a new octant if there's more than one object in that child
-			if (internalBoundingObjects.size() >= 1)
-				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+1,
-					octantID+(1*numSubdiv), childCentroid, childEdge*2.0f));
+			if (internalBoundingObjects.size() >= 1){
+				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+2,
+					octantID+(2*numSubdiv), childCentroid, childEdge*2.0f));
+
+				if (internalBoundingObjects.size() >= 2){
+					childrenOctants.pop_back();
+					childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+1,
+					octantID+(numSubdiv), childCentroid, childEdge*2.0f));
+
+					
+				if (internalBoundingObjects.size() >= 3){
+					childrenOctants.pop_back();
+					childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel,
+					octantID+(-2*numSubdiv), childCentroid, childEdge*2.0f));
+					}
+				
+				}
+
+			} 
 		}
 	}
 }
