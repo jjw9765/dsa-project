@@ -138,6 +138,18 @@ void ApplicationClass::ProcessKeyboard(void)
 	m_pCamera->CalculateView();
 	
 #pragma endregion
+
+	//spacebar, firing sphere
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		//if 2.5 seconds have passed since last shot
+		if(m_fShotTime >= 2.5f){
+			m_m4Sphere = glm::translate(vector3(0.0f,1.0f,15.0f));//reset position 
+			m_v3Direction = m_pCamera->GetForwardVector();//set new direction
+
+			m_fShotTime = 0.0f;//reset time since last shot
+		}
+	}
 }
 void ApplicationClass::ProcessMouse(void)
 {

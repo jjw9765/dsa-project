@@ -24,7 +24,11 @@ void ApplicationClass::InitUserAppVariables()
 		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)) * glm::scale(vector3(0.5f)));
 
 		//set initial sphere location
-		m_m4Sphere = glm::translate(vector3(0.0f,1.0f,15.0f));
+		m_m4Sphere = glm::translate(vector3(0.0f,-20.0f,0.0f));
+		m_v3Direction = vector3(0.0f,0.0f,0.0f);
+
+		//set shot time high to allow initial shot
+		m_fShotTime = 5.0f;
 	}
 
 	// Create a vector holding all objects in the scene
@@ -40,8 +44,10 @@ void ApplicationClass::Update (void)
 	m_pMeshMngr->Update(); //Update the mesh information
 
 	float fTimeSpan = m_pSystem->LapClock(0);//check time difference between method calls
-	static float fRunTime = 0.0f;
-	fRunTime += fTimeSpan;
+	//static float fRunTime = 0.0f;
+	//fRunTime += fTimeSpan;
+	
+	m_fShotTime += fTimeSpan;//increment time since last shot
 
 	//First person camera movement
 	if(m_bFPC == true)
@@ -53,23 +59,9 @@ void ApplicationClass::Update (void)
 		m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	}
 
-	//generate random direction until we start using camera direction
-	float randX = (float)(rand() % 100);
-	float randY = (float)(rand() % 25);
-	float randZ = (float)(rand() % 100);
 
-	if(randX > 50)
-	{ 
-		randX -= 50.0f;
-		randX *= -1.0f;
-	}
-
-	static vector3 v3direction = vector3(randX,randY,randZ * -1.0f);
-	v3direction = glm::normalize(v3direction);
-
-	//delete between these comments when camera direction is working
 	//sphere physics calculations
-	Physics(fTimeSpan,fRunTime, v3direction);
+	Physics(fTimeSpan,m_fShotTime, m_v3Direction);
 
 	// OctTree this game up
 	OctantCustom* newOctTree = new OctantCustom(m_pMeshMngr, listObjects);
@@ -77,10 +69,10 @@ void ApplicationClass::Update (void)
 	printf("FPS: %d\r", m_pSystem->FPS);//print the Frames per Second	
 }
 
-void ApplicationClass::Physics(float fTimeSpan, float fRunTime, vector3 v3direction)
+void ApplicationClass::Physics(float fTimeSpan, float fShotTime, vector3 v3direction)
 {
-	matrix4 gravity = glm::translate(vector3(0.0f,fRunTime * -0.1f,0.0f));
-	matrix4 translate = glm::translate(fTimeSpan * (v3direction * 30.0f));
-	m_m4Sphere = m_m4Sphere * translate * gravity;
-	m_pMeshMngr->AddSphereToQueue(m_m4Sphere);
+	matrix4 gravity = glm::translate(vector3(0.0f,fShotTime * -0.1f,0.0f));//gravity translation
+	matrix4 translate = glm::translate(fTimeSpan * (v3direction * 60.0f));//velocity translation
+	m_m4Sphere = m_m4Sphere * translate * gravity;//apply translations
+	m_pMeshMngr->AddSphereToQueue(m_m4Sphere);//render sphere
 }
