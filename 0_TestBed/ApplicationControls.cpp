@@ -122,7 +122,10 @@ void ApplicationClass::ProcessKeyboard(void)
 	}
 
 	//Camera
-	
+	/*
+		COMMENT OUT THIS REGION TO DISABLE THE PLAYER'S MOVEMENT
+		FOR FINAL MILESTONE
+	*/
 #pragma region Camera
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		m_pCamera->MoveForward(fSpeed);

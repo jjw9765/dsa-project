@@ -11,7 +11,7 @@ void ApplicationClass::InitUserAppVariables()
 	float randX;
 	float randY;
 	float randZ;
-	int maxSpawnDistance = 10;
+	int maxSpawnDistance = 20;
 	std::vector<vector3> enemyLocs;
 	
 	// for each enemy, create a random vector3
@@ -24,35 +24,31 @@ void ApplicationClass::InitUserAppVariables()
 		enemyLocs.push_back(vector3(randX, randY, randZ));
 
 		//Make sure enemies aren't placed inside eachother
-		if(nEnemy > 0){
-
-			for(int j = 0; j < enemyLocs.size(); j++){
-
-				if(randX <= enemyLocs[j].x + 150 && randX >= enemyLocs[j].x - 150){
+		if(nEnemy > 0)
+		{
+			for(int j = 0; j < enemyLocs.size(); j++)
+			{
+				if(randX <= enemyLocs[j].x + 150 && randX >= enemyLocs[j].x - 150)
 					randX = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
-				}
 
-				if(randY <= enemyLocs[j].y + 150 && randY >= enemyLocs[j].y - 150){
+				if(randY <= enemyLocs[j].y + 150 && randY >= enemyLocs[j].y - 150)
 					randY = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
-				}
 
-				if(randZ <= enemyLocs[j].z + 150 && randZ >= enemyLocs[j].z - 150){
+				if(randZ <= enemyLocs[j].z + 150 && randZ >= enemyLocs[j].z - 150)
 					randZ = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
-				}
 			}
-		
 		}
-		
+
 		// load the enemy
-		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)) * glm::scale(vector3(0.5f)));
-
-		//set initial sphere location
-		m_m4Sphere = glm::translate(vector3(0.0f,-20.0f,0.0f));
-		m_v3Direction = vector3(0.0f,0.0f,0.0f);
-
-		//set shot time high to allow initial shot
-		m_fShotTime = 5.0f;
+		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)));
 	}
+
+	//set initial sphere location
+	m_m4Sphere = glm::translate(vector3(0.0f,-20.0f,0.0f));
+	m_v3Direction = vector3(0.0f,0.0f,0.0f);
+
+	//set shot time high to allow initial shot
+	m_fShotTime = 5.0f;
 
 	// Create a vector holding all objects in the scene
 	int numInstances = m_pMeshMngr->GetNumberOfInstances();
@@ -81,7 +77,6 @@ void ApplicationClass::Update (void)
 		ArcBall();
 		m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	}
-
 
 	//sphere physics calculations
 	Physics(fTimeSpan,m_fShotTime, m_v3Direction);

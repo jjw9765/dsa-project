@@ -78,6 +78,7 @@ void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vecto
 	{
 		vector3 childCentroid;
 		float childEdge = edgeLength/4.0f;
+
 		for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
 		{
 			childCentroid = octantCentroid;
@@ -114,12 +115,12 @@ void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vecto
 			// go through all the objects given and figure out of they're inside of that child 
 			for (BoundingObjectClass* conOBJs : containedObjects)
 			{
-				if (conOBJs->GetCentroidGlobal().x > childCentroid.x - childEdge &&
-					conOBJs->GetCentroidGlobal().x < childCentroid.x + childEdge &&
-					conOBJs->GetCentroidGlobal().y > childCentroid.y - childEdge &&
-					conOBJs->GetCentroidGlobal().y < childCentroid.y + childEdge &&
-					conOBJs->GetCentroidGlobal().z > childCentroid.z - childEdge &&
-					conOBJs->GetCentroidGlobal().z < childCentroid.z + childEdge)
+				if (conOBJs->GetCentroidGlobal().x + conOBJs->GetHalfWidth().x > childCentroid.x - childEdge &&		// if contained object's max X > octant's min X
+					conOBJs->GetCentroidGlobal().x - conOBJs->GetHalfWidth().x < childCentroid.x + childEdge &&		// if contained object's min X < octant's max X
+					conOBJs->GetCentroidGlobal().y + conOBJs->GetHalfWidth().y > childCentroid.y - childEdge &&		// if contained object's max Y > octant's min Y
+					conOBJs->GetCentroidGlobal().y - conOBJs->GetHalfWidth().y < childCentroid.y + childEdge &&		// if contained object's min Y < octant's max Y
+					conOBJs->GetCentroidGlobal().z + conOBJs->GetHalfWidth().z > childCentroid.z - childEdge &&		// if contained object's max Z > octant's min Z
+					conOBJs->GetCentroidGlobal().z - conOBJs->GetHalfWidth().z < childCentroid.z + childEdge)			// if contained object's min Z < octant's max Z
 				{
 					// if they are, add them to the internal bounding objects vector
 					internalBoundingObjects.push_back(conOBJs);
@@ -127,7 +128,14 @@ void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vecto
 			}
 
 			// create a new octant if there's more than one object in that child
-			if (internalBoundingObjects.size() >= 1){
+			if (internalBoundingObjects.size() >= MAX_OBJS_PER_OCTANT)
+			{
+				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+1,
+					octantID+(numSubdiv), childCentroid, childEdge*2.0f));
+			}
+
+			// create a new octant if there's more than one object in that child
+			/*if (internalBoundingObjects.size() >= 1){
 				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+2,
 					octantID+(2*numSubdiv), childCentroid, childEdge*2.0f));
 
@@ -142,10 +150,8 @@ void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vecto
 					childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel,
 					octantID+(-2*numSubdiv), childCentroid, childEdge*2.0f));
 					}
-				
 				}
-
-			} 
+			}*/
 		}
 	}
 }
