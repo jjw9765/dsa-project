@@ -3,11 +3,15 @@
 
 OctantCustom::OctantCustom(MeshManagerSingleton* m_pMeshMngr, std::vector<BoundingObjectClass*> masterList)
 {
+	
+	isLeaf = false;
 	subdivLevel = 0;
 	octantID = 0;
 	edgeLength = 0.0f;
-
+	
 	CreateOctant(m_pMeshMngr, masterList);
+		octBO = new BoundingObjectClass(octantCentroid, edgeLength);
+		octBO->SetVisibleAABB(false);
 	SubdivideOctant(m_pMeshMngr, masterList);
 	RenderOctant(m_pMeshMngr);
 }
@@ -16,11 +20,14 @@ OctantCustom::OctantCustom(MeshManagerSingleton* m_pMeshMngr, std::vector<Boundi
 OctantCustom::OctantCustom(MeshManagerSingleton* m_pMeshMngr, std::vector<BoundingObjectClass*> containedObjects,
 						   int i_Level, int i_ID, vector3 centroid, float edge)
 {
+	isLeaf = false;
 	subdivLevel = i_Level;
 	octantID = i_ID;
 	octantCentroid = centroid;
 	edgeLength = edge;
 
+		octBO = new BoundingObjectClass(octantCentroid, edgeLength);
+		octBO->SetVisibleAABB(false);
 	SubdivideOctant(m_pMeshMngr, containedObjects);
 	RenderOctant(m_pMeshMngr);
 }
@@ -72,95 +79,84 @@ void OctantCustom::CreateOctant(MeshManagerSingleton* m_pMeshMngr, std::vector<B
 }
 
 
+// check colliding objects first, then either leaf (leave) it as is, or subdivide again
 void OctantCustom::SubdivideOctant(MeshManagerSingleton* m_pMeshMngr, std::vector<BoundingObjectClass*> containedObjects)
 {
-	if (subdivLevel < MAX_SUBDIVS)
+	vector3 childCentroid;
+	float childEdge = edgeLength/4.0f;
+
+	// go through all the objects given and figure out of they're colliding with that child 
+	for (BoundingObjectClass* conOBJs : containedObjects)
 	{
-		vector3 childCentroid;
-		float childEdge = edgeLength/4.0f;
-
-		for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
+		if (conOBJs->IsColliding(*octBO))
 		{
-			childCentroid = octantCentroid;
+			// if they are, add them to the internal bounding objects
+			internalBoundingObjects.push_back(conOBJs);
+		}
+	}
 
-			// subdivs are described by how you face them
-			switch(numSubdiv)
-			{
-				case 0:	//	Front Top Right
-					childCentroid += vector3(childEdge);
-					break;
-				case 1:	//	Front Top Left
-					childCentroid += vector3(-childEdge, childEdge, childEdge);
-					break;
-				case 2:	//	Front Bottom Left
-					childCentroid += vector3(-childEdge, -childEdge, childEdge);
-					break;
-				case 3:	//	Front Bottom Right
-					childCentroid += vector3(childEdge, -childEdge, childEdge);
-					break;
-				case 4:	//	Rear Top Right
-					childCentroid += vector3(childEdge, childEdge, -childEdge);
-					break;
-				case 5:	//	Rear Top Left
-					childCentroid += vector3(-childEdge, childEdge, -childEdge);
-					break;
-				case 6:	//	Rear Bottom Left
-					childCentroid -= vector3(childEdge);
-					break;
-				case 7:	//	Rear Bottom Right
-					childCentroid += vector3(childEdge, -childEdge, -childEdge);
-					break;
-			}
+	// if there's only one object in that octant, leaf it, and prevent it from subdividing
+	if (internalBoundingObjects.size() == MAX_OBJS_PER_OCTANT)
+	{
+		isLeaf = true;
+	}
+	// create a new octant if there's more than one object in that child
+	else if (internalBoundingObjects.size() > MAX_OBJS_PER_OCTANT)
+	{
+		if (subdivLevel < MAX_SUBDIVS && isLeaf == false)
+		{
+			vector3 childCentroid;
+			float childEdge = edgeLength/4.0f;
 
-			// go through all the objects given and figure out of they're inside of that child 
-			for (BoundingObjectClass* conOBJs : containedObjects)
+			// loop 8 times, once for each oct-child
+			for (int numSubdiv = 0; numSubdiv < 8; numSubdiv++)
 			{
-				if (conOBJs->GetCentroidGlobal().x + conOBJs->GetHalfWidth().x > childCentroid.x - childEdge &&		// if contained object's max X > octant's min X
-					conOBJs->GetCentroidGlobal().x - conOBJs->GetHalfWidth().x < childCentroid.x + childEdge &&		// if contained object's min X < octant's max X
-					conOBJs->GetCentroidGlobal().y + conOBJs->GetHalfWidth().y > childCentroid.y - childEdge &&		// if contained object's max Y > octant's min Y
-					conOBJs->GetCentroidGlobal().y - conOBJs->GetHalfWidth().y < childCentroid.y + childEdge &&		// if contained object's min Y < octant's max Y
-					conOBJs->GetCentroidGlobal().z + conOBJs->GetHalfWidth().z > childCentroid.z - childEdge &&		// if contained object's max Z > octant's min Z
-					conOBJs->GetCentroidGlobal().z - conOBJs->GetHalfWidth().z < childCentroid.z + childEdge)			// if contained object's min Z < octant's max Z
+				childCentroid = octantCentroid;
+
+				// subdivs are described by how you face them
+				switch(numSubdiv)
 				{
-					// if they are, add them to the internal bounding objects vector
-					internalBoundingObjects.push_back(conOBJs);
+					case 0:	//	Front Top Right
+						childCentroid += vector3(childEdge);
+						break;
+					case 1:	//	Front Top Left
+						childCentroid += vector3(-childEdge, childEdge, childEdge);
+						break;
+					case 2:	//	Front Bottom Left
+						childCentroid += vector3(-childEdge, -childEdge, childEdge);
+						break;
+					case 3:	//	Front Bottom Right
+						childCentroid += vector3(childEdge, -childEdge, childEdge);
+						break;
+					case 4:	//	Rear Top Right
+						childCentroid += vector3(childEdge, childEdge, -childEdge);
+						break;
+					case 5:	//	Rear Top Left
+						childCentroid += vector3(-childEdge, childEdge, -childEdge);
+						break;
+					case 6:	//	Rear Bottom Left
+						childCentroid -= vector3(childEdge);
+						break;
+					case 7:	//	Rear Bottom Right
+						childCentroid += vector3(childEdge, -childEdge, -childEdge);
+						break;
 				}
-			}
 
-			// create a new octant if there's more than one object in that child
-			if (internalBoundingObjects.size() >= MAX_OBJS_PER_OCTANT)
-			{
+				// create a new child octant
 				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+1,
 					octantID+(numSubdiv), childCentroid, childEdge*2.0f));
 			}
-
-			// create a new octant if there's more than one object in that child
-			/*if (internalBoundingObjects.size() >= 1){
-				childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+2,
-					octantID+(2*numSubdiv), childCentroid, childEdge*2.0f));
-
-				if (internalBoundingObjects.size() >= 2){
-					childrenOctants.pop_back();
-					childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel+1,
-					octantID+(numSubdiv), childCentroid, childEdge*2.0f));
-
-					
-				if (internalBoundingObjects.size() >= 3){
-					childrenOctants.pop_back();
-					childrenOctants.push_back(new OctantCustom(m_pMeshMngr, internalBoundingObjects, subdivLevel,
-					octantID+(-2*numSubdiv), childCentroid, childEdge*2.0f));
-					}
-				}
-			}*/
 		}
 	}
 }
 
 
+// simply renders the octants that have objects inside of them
 void OctantCustom::RenderOctant(MeshManagerSingleton* m_pMeshMngr)
 {
 	vector3 colorVector;
 
+	// helps colorcode the octant tiers
 	if (subdivLevel == 0)
 		colorVector = vector3(1.0f,1.0f,1.0f);
 	else if (subdivLevel == 1)
@@ -170,6 +166,12 @@ void OctantCustom::RenderOctant(MeshManagerSingleton* m_pMeshMngr)
 	else if (subdivLevel == 3)
 		colorVector = vector3(0.5f,0.5f,0.5f);
 
-	if (internalBoundingObjects.size() > 0)
+	
+	if (internalBoundingObjects.size() > 0 )
+	{
+		//octBO->SetVisibleAABB(true);
+		//octBO->Render(false);
+	
 		m_pMeshMngr->AddCubeToQueue(glm::translate(octantCentroid) * glm::scale(vector3(edgeLength)), colorVector, MERENDER::WIRE);
+	}
 }
