@@ -20,6 +20,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+vector3 ApplicationClass::GetCentroid(void){return m_v3SphereCentroid; }
+
 /* Instance of the application */
 ApplicationClass* ApplicationClass::m_pInstance = nullptr;
 void ApplicationClass::InitAppSystem(void)

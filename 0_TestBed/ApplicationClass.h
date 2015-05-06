@@ -61,6 +61,8 @@ public:
 	*/
 	void Run (void);
 
+	vector3 GetCentroid(void);
+
 	// to use for the cannonball, and eventually the enemy ships
 	void Physics(float fTimeSpan, float fRunTime, vector3 v3direction);
 

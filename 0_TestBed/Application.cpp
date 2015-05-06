@@ -84,6 +84,7 @@ void ApplicationClass::Update (void)
 
 	// OctTree this game up
 	OctantCustom* newOctTree = new OctantCustom(m_pMeshMngr, listObjects);
+	newOctTree->DetectBullet(m_v3SphereCentroid);
 
 	printf("FPS: %d\r", m_pSystem->FPS);//print the Frames per Second	
 }

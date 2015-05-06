@@ -16,7 +16,8 @@ class OctantCustom
 		void CreateOctant(MeshManagerSingleton*, std::vector<BoundingObjectClass*>);
 		void SubdivideOctant(MeshManagerSingleton*, std::vector<BoundingObjectClass*>);
 		void RenderOctant(MeshManagerSingleton*);
-		void DetectBullet();
+		void DetectBullet(vector3 bulletCentroid);
+		int TestOBBOBB(BoundingObjectClass* a, BoundingObjectClass* b);
 
 		bool isLeaf;		// helps prevent further subdivs from happening
 		int subdivLevel;	// level of subdivisions
