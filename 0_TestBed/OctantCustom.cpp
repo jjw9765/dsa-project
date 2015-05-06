@@ -1,9 +1,8 @@
 #include "OctantCustom.h"
-
+#include "ApplicationClass.h"
 
 OctantCustom::OctantCustom(MeshManagerSingleton* m_pMeshMngr, std::vector<BoundingObjectClass*> masterList)
 {
-	
 	isLeaf = false;
 	subdivLevel = 0;
 	octantID = 0;
@@ -173,5 +172,18 @@ void OctantCustom::RenderOctant(MeshManagerSingleton* m_pMeshMngr)
 		//octBO->Render(false);
 	
 		m_pMeshMngr->AddCubeToQueue(glm::translate(octantCentroid) * glm::scale(vector3(edgeLength)), colorVector, MERENDER::WIRE);
+	}
+}
+
+void OctantCustom::DetectBullet()
+{
+	BoundingObjectClass* bullet = new BoundingObjectClass(m_v3SphereCentroid, 1);
+
+	if (bullet->IsColliding(*octBO))
+	{
+		for (BoundingObjectClass* intOBJ : internalBoundingObjects)
+		{
+			//Perform AABB and OBB here
+		}
 	}
 }
