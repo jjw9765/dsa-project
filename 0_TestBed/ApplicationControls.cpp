@@ -148,6 +148,7 @@ void ApplicationClass::ProcessKeyboard(void)
 		//if 2.5 seconds have passed since last shot
 		if(m_fShotTime >= 2.5f){
 			m_m4Sphere = glm::translate(vector3(0.0f,1.0f,15.0f));//reset position 
+			m_v3SphereCentroid = vector3(0.0f, 1.0f, 15.0f);//update centroid position
 			m_v3Direction = m_pCamera->GetForwardVector();//set new direction
 
 			m_fShotTime = 0.0f;//reset time since last shot
