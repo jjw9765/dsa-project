@@ -36,6 +36,7 @@ class MyEngineDLL BoundingObjectClass
 	std::vector<int> m_lOctant; //List of octants
 
 public:
+	vector3 m_v3Size;
 	/* Constructor 	*/
 	BoundingObjectClass(std::vector<vector3> a_lVertex, matrix4 a_m4ToWorld, String a_sInstanceName);
 	/* Constructor 	*/

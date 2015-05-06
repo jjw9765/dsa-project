@@ -176,7 +176,7 @@ void OctantCustom::RenderOctant(MeshManagerSingleton* m_pMeshMngr)
 
 void OctantCustom::DetectBullet(vector3 bulletCentroid)
 {
-	BoundingObjectClass* bullet = new BoundingObjectClass(bulletCentroid, 1);
+	BoundingObjectClass* bullet = new BoundingObjectClass(bulletCentroid, 10);
 
 	if (bullet->IsColliding(*octBO))
 	{
@@ -184,7 +184,12 @@ void OctantCustom::DetectBullet(vector3 bulletCentroid)
 		{
 			if(TestOBBOBB(bullet, intOBJ) == 1)
 			{
-				//Run collision code
+				//intOBJ->SetModelMatrix(glm::translate(100.0f, 100.0f, 100.0f));
+				std::cout << "collision" << "\n";
+			}
+			else
+			{
+				std::cout << "\n";
 			}
 		}
 	}
@@ -200,19 +205,22 @@ void OctantCustom::DetectBullet(vector3 bulletCentroid)
 
 int OctantCustom::TestOBBOBB(BoundingObjectClass* a, BoundingObjectClass* b)
 {
-	//Vector u[3]; Local x-, y-, and z-axes
-	a->u[0] = vector4(m_lMatrix[index1] * vector4(1.0, 0.0, 0.0, 0.0));
-	a->u[1] = vector4(m_lMatrix[index1] * vector4(0.0, 1.0, 0.0, 0.0));
-	a->u[2] = vector4(m_lMatrix[index1] * vector4(0.0, 0.0, 1.0, 0.0));
+	vector4 u1[3];
+	vector4 u2[3];
 
 	//Vector u[3]; Local x-, y-, and z-axes
-	b->u[0] = vector4(m_lMatrix[index2] * vector4(1.0, 0.0, 0.0, 0.0));
-	b->u[1] = vector4(m_lMatrix[index2] * vector4(0.0, 1.0, 0.0, 0.0));
-	b->u[2] = vector4(m_lMatrix[index2] * vector4(0.0, 0.0, 1.0, 0.0));
+	u1[0] = vector4(a->GetModelMatrix() * vector4(1.0, 0.0, 0.0, 0.0));
+	u1[1] = vector4(a->GetModelMatrix() * vector4(0.0, 1.0, 0.0, 0.0));
+	u1[2] = vector4(a->GetModelMatrix() * vector4(0.0, 0.0, 1.0, 0.0));
+
+	//Vector u[3]; Local x-, y-, and z-axes
+	u2[0] = vector4(b->GetModelMatrix() * vector4(1.0, 0.0, 0.0, 0.0));
+	u2[1] = vector4(b->GetModelMatrix() * vector4(0.0, 1.0, 0.0, 0.0));
+	u2[2] = vector4(b->GetModelMatrix() * vector4(0.0, 0.0, 1.0, 0.0));
 
 	//Vector e; Positive halfwidth extents of OBB along each axis
-	vector3 eA = a->m_v3Size / 2.0f;
-	vector3 eB = b->m_v3Size / 2.0f;
+	vector3 eA = a->GetHalfWidth();
+	vector3 eB = b->GetHalfWidth();
 
 	float ra, rb;
     glm::mat3x3 R, AbsR;
@@ -220,12 +228,12 @@ int OctantCustom::TestOBBOBB(BoundingObjectClass* a, BoundingObjectClass* b)
     // Compute rotation matrix expressing b in a's coordinate frame
     for (int i = 0; i < 3; i++)
        for (int j = 0; j < 3; j++)
-		   R[i][j] = glm::dot(a->u[i], b->u[j]);
+		   R[i][j] = glm::dot(u1[i], u2[j]);
 
     // Compute translation vector t
-    vector4 t = m_lMatrix[index2] * vector4(b->GetCentroid(), 1.0f) - m_lMatrix[index1] * vector4(a->GetCentroid(), 1.0f);
+    vector4 t = b->GetModelMatrix() * vector4(b->GetCentroidGlobal(), 1.0f) - a->GetModelMatrix() * vector4(a->GetCentroidGlobal(), 1.0f);
     // Bring translation into a's coordinate frame
-    t = vector4(glm::dot(t, a->u[0]), glm::dot(t, a->u[1]), glm::dot(t, a->u[2]), 1.0f);
+    t = vector4(glm::dot(t, u1[0]), glm::dot(t, u1[1]), glm::dot(t, u1[2]), 1.0f);
 
     // Compute common subexpressions. Add in an epsilon term to
     // counteract arithmetic errors when two edges are parallel and
