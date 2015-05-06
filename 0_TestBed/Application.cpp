@@ -45,6 +45,7 @@ void ApplicationClass::InitUserAppVariables()
 
 	//set initial sphere location
 	m_m4Sphere = glm::translate(vector3(0.0f,-20.0f,0.0f));
+	m_v3SphereCentroid = vector3(0.0f,-20.0f,0.0f);
 	m_v3Direction = vector3(0.0f,0.0f,0.0f);
 
 	//set shot time high to allow initial shot
@@ -89,8 +90,13 @@ void ApplicationClass::Update (void)
 
 void ApplicationClass::Physics(float fTimeSpan, float fShotTime, vector3 v3direction)
 {
-	matrix4 gravity = glm::translate(vector3(0.0f,fShotTime * -0.1f,0.0f));//gravity translation
-	matrix4 translate = glm::translate(fTimeSpan * (v3direction * 60.0f));//velocity translation
+	vector3 tempGrav = vector3(0.0f,fShotTime * -0.1f,0.0f);
+	vector3 tempVel = fTimeSpan * (v3direction * 60.0f);
+	m_v3SphereCentroid = m_v3SphereCentroid + tempGrav + tempVel;
+
+	matrix4 gravity = glm::translate(tempGrav);//gravity translation
+	matrix4 translate = glm::translate(tempVel);//velocity translation
 	m_m4Sphere = m_m4Sphere * translate * gravity;//apply translations
-	m_pMeshMngr->AddSphereToQueue(m_m4Sphere);//render sphere
+	m_pMeshMngr->AddSphereToQueue(m_m4Sphere,vector3(0.0f,0.0f,0.0f), 1);//render sphere
+	//m_pMeshMngr->AddAxisToQueue(glm::translate(m_v3SphereCentroid));//render centroid vector for debugging
 }

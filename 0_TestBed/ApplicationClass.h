@@ -22,6 +22,7 @@ class ApplicationClass
 
 	matrix4 m_m4Sphere;//sphere model matrix (cannon ball)
 	vector3 m_v3Direction;//sphere direction
+	vector3 m_v3SphereCentroid;//centroid position
 
 	float m_fShotTime;//time since last shot
 
