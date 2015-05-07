@@ -174,34 +174,38 @@ void OctantCustom::RenderOctant(MeshManagerSingleton* m_pMeshMngr)
 	}
 }
 
-void OctantCustom::DetectBullet(vector3 bulletCentroid)
+
+void OctantCustom::DetectBullet(vector3 bulletCentroid, MeshManagerSingleton* m_pMeshMngr)
 {
-	BoundingObjectClass* bullet = new BoundingObjectClass(bulletCentroid, 10);
-
-	if (bullet->IsColliding(*octBO))
-	{
-		for (BoundingObjectClass* intOBJ : internalBoundingObjects)
-		{
-			if(TestOBBOBB(bullet, intOBJ) == 1)
-			{
-				//intOBJ->SetModelMatrix(glm::translate(100.0f, 100.0f, 100.0f));
-				std::cout << "collision" << "\n";
-			}
-			else
-			{
-				std::cout << "\n";
-			}
-		}
-	}
-
 	if (childrenOctants.size() > 0)
 	{
 		for (OctantCustom* child : childrenOctants)
 		{
-			child->DetectBullet(bulletCentroid);
+			child->DetectBullet(bulletCentroid, m_pMeshMngr);
+		}
+	}
+	else
+	{
+		BoundingObjectClass* bullet = new BoundingObjectClass(bulletCentroid, 1);
+		bullet->SetVisibleOBB(true);
+		bullet->Render(false);
+
+		if (bullet->IsColliding(*octBO))
+		{
+			m_pMeshMngr->AddCubeToQueue(glm::translate(octantCentroid) * glm::scale(vector3(edgeLength)), vector3(0.0f,1.0f,0.0f), MERENDER::WIRE);
+
+			for (BoundingObjectClass* intOBJ : internalBoundingObjects)
+			{
+				std::cout << TestOBBOBB(bullet, intOBJ) << std::endl;
+				if(TestOBBOBB(bullet, intOBJ) == 1)
+				{
+					m_pMeshMngr->AddCubeToQueue(glm::translate(intOBJ->GetCentroidGlobal()) * glm::scale(vector3(1.0f)), vector3(0.0f,1.0f,0.0f), MERENDER::SOLID);
+				}
+			}
 		}
 	}
 }
+
 
 int OctantCustom::TestOBBOBB(BoundingObjectClass* a, BoundingObjectClass* b)
 {
