@@ -85,7 +85,7 @@ void ApplicationClass::Update (void)
 	OctantCustom* newOctTree = new OctantCustom(m_pMeshMngr, listObjects);
 	
 	// get the most recent dying ship and compare it to current dying ships
-	String dyingShipName = newOctTree->DetectBullet(m_v3SphereCentroid, m_pMeshMngr);
+	dyingShipName = newOctTree->DetectBullet(m_v3SphereCentroid, m_pMeshMngr);
 	if (dyingShipName.compare("lol") != 0)
 	{
 		bool doesExist = false;
@@ -104,19 +104,25 @@ void ApplicationClass::Update (void)
 			dyingShips.push_back(m_pMeshMngr->GetInstanceByName(dyingShipName));
 		}
 	}
-
+	
+	
 	for (InstanceClass* dead : deadShips)
 	{
 		if (dead->GetName().compare("DeadCow") != 0)
 		{
 			dead->SetVisible(false);
 
-			int deadIndex = atoi(dead->GetName().substr(3).c_str());
+			//int deadIndex = atoi(dead->GetName().substr(3).c_str());
 
 			std::cout << "Ship YOLO'd: " << dead->GetName() << std::endl;
 
 			dyingShips.erase(dyingShips.begin());
-			listObjects.erase(listObjects.begin() + deadIndex);
+
+			for (int i=0; i < listObjects.size(); i++)
+			{
+				if(listObjects[i]->GetName().compare(dead->GetName()) == 0)
+					listObjects.erase(listObjects.begin() + i);
+			}
 
 			dead->SetName("DeadCow");
 		}
@@ -130,9 +136,9 @@ void ApplicationClass::Update (void)
 
 void ApplicationClass::Physics(float fTimeSpan, float fShotTime, vector3 v3direction)
 {
-	vector3 tempGrav = vector3(0.0f,fShotTime * -0.1f,0.0f);
+	vector3 tempGrav = vector3(0.0f,fShotTime * -0.07f,0.0f);
 	vector3 tempVel = fTimeSpan * (v3direction * 60.0f);
-	vector3 shipFall = fTimeSpan * vector3(0.0f,-5.0f,0.0f);
+	vector3 shipFall = vector3(0.0f,fTimeSpan * -1.0f,0.0f);
 	m_v3SphereCentroid = m_v3SphereCentroid + tempGrav + tempVel;
 
 	matrix4 gravity = glm::translate(tempGrav);//gravity translation
@@ -143,7 +149,7 @@ void ApplicationClass::Physics(float fTimeSpan, float fShotTime, vector3 v3direc
 	for (InstanceClass* moo : dyingShips)
 	{
 		// spiral and moooove down in a dying fashion
-		moo->SetModelMatrix(moo->GetModelMatrix() * glm::rotate(matrix4(IDENTITY),fTimeSpan * 90.0f, vector3(1.0f)) * glm::translate(shipFall));
+		moo->SetModelMatrix(moo->GetModelMatrix() * (glm::translate(tempVel * fTimeSpan) * glm::translate(shipFall)) * glm::translate(tempGrav) * glm::rotate(matrix4(IDENTITY),fTimeSpan * 180.0f, vector3(0.0f,1.0f,0.0f)));
 
 		vector4 yPos = (moo->GetModelMatrix() * vector4(0.0f,1.0f,0.0f,1.0f));
 

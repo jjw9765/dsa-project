@@ -127,18 +127,18 @@ void ApplicationClass::ProcessKeyboard(void)
 		FOR FINAL MILESTONE
 	*/
 #pragma region Camera
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		m_pCamera->MoveForward(fSpeed);
+	//if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	//	m_pCamera->MoveForward(fSpeed);
 
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		m_pCamera->MoveForward(-fSpeed);
-	
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		m_pCamera->MoveSideways(-fSpeed);
+	//if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	//	m_pCamera->MoveForward(-fSpeed);
+	//
+	//if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+	//	m_pCamera->MoveSideways(-fSpeed);
 
-	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		m_pCamera->MoveSideways(fSpeed);
-	m_pCamera->CalculateView();
+	//if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+	//	m_pCamera->MoveSideways(fSpeed);
+	//m_pCamera->CalculateView();
 	
 #pragma endregion
 
@@ -146,7 +146,7 @@ void ApplicationClass::ProcessKeyboard(void)
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
 		//if 2.5 seconds have passed since last shot
-		if(m_fShotTime >= 2.5f){
+		if(m_fShotTime >= 2.0f){
 			m_m4Sphere = glm::translate(vector3(0.0f,1.0f,15.0f));//reset position 
 			m_v3SphereCentroid = vector3(0.0f, 1.0f, 15.0f);//update centroid position
 			m_v3Direction = m_pCamera->GetForwardVector();//set new direction

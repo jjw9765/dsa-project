@@ -42,6 +42,7 @@ class ApplicationClass
 
 	std::vector<InstanceClass*> listObjects; // A vector to hold all objects that were created at Runtime
 	std::vector<InstanceClass*> dyingShips; // A vector to hold all dying cows
+	String dyingShipName;
 	std::vector<InstanceClass*> deadShips; // A vector to hold all dead cows
 	
 public:

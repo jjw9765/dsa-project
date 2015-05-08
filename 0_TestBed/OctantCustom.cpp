@@ -39,41 +39,44 @@ OctantCustom::~OctantCustom(void)
 
 void OctantCustom::CreateOctant(MeshManagerSingleton* m_pMeshMngr, std::vector<InstanceClass*> masterList)
 {
-	vector3 rootMin;
-	vector3 rootMax;
-
-	rootMin = masterList[0]->GetGrandBoundingObject()->GetCentroidGlobal() - masterList[0]->GetGrandBoundingObject()->GetHalfWidth();
-	rootMax = masterList[0]->GetGrandBoundingObject()->GetCentroidGlobal() + masterList[0]->GetGrandBoundingObject()->GetHalfWidth();
-
-	// find the min/max of the root cube by going through each object and calculating its bounds
-	for (InstanceClass* boInstance : masterList)
+	if (masterList.size() > 0)
 	{
-		if (rootMin.x > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x - boInstance->GetGrandBoundingObject()->GetHalfWidth().x)
-			rootMin.x = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x - boInstance->GetGrandBoundingObject()->GetHalfWidth().x;
-		else if (rootMax.x < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x + boInstance->GetGrandBoundingObject()->GetHalfWidth().x)
-			rootMax.x = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x + boInstance->GetGrandBoundingObject()->GetHalfWidth().x;
+		vector3 rootMin;
+		vector3 rootMax;
 
-		if (rootMin.y > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y - boInstance->GetGrandBoundingObject()->GetHalfWidth().y)
-			rootMin.y = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y - boInstance->GetGrandBoundingObject()->GetHalfWidth().y;
-		else if (rootMax.y < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y + boInstance->GetGrandBoundingObject()->GetHalfWidth().y)
-			rootMax.y = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y + boInstance->GetGrandBoundingObject()->GetHalfWidth().y;
+		rootMin = masterList[0]->GetGrandBoundingObject()->GetCentroidGlobal() - masterList[0]->GetGrandBoundingObject()->GetHalfWidth();
+		rootMax = masterList[0]->GetGrandBoundingObject()->GetCentroidGlobal() + masterList[0]->GetGrandBoundingObject()->GetHalfWidth();
 
-		if (rootMin.z > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z - boInstance->GetGrandBoundingObject()->GetHalfWidth().z)
-			rootMin.z = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z - boInstance->GetGrandBoundingObject()->GetHalfWidth().z;
-		else if (rootMax.z < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z + boInstance->GetGrandBoundingObject()->GetHalfWidth().z)
-			rootMax.z = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z + boInstance->GetGrandBoundingObject()->GetHalfWidth().z;
+		// find the min/max of the root cube by going through each object and calculating its bounds
+		for (InstanceClass* boInstance : masterList)
+		{
+			if (rootMin.x > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x - boInstance->GetGrandBoundingObject()->GetHalfWidth().x)
+				rootMin.x = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x - boInstance->GetGrandBoundingObject()->GetHalfWidth().x;
+			else if (rootMax.x < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x + boInstance->GetGrandBoundingObject()->GetHalfWidth().x)
+				rootMax.x = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().x + boInstance->GetGrandBoundingObject()->GetHalfWidth().x;
+
+			if (rootMin.y > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y - boInstance->GetGrandBoundingObject()->GetHalfWidth().y)
+				rootMin.y = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y - boInstance->GetGrandBoundingObject()->GetHalfWidth().y;
+			else if (rootMax.y < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y + boInstance->GetGrandBoundingObject()->GetHalfWidth().y)
+				rootMax.y = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().y + boInstance->GetGrandBoundingObject()->GetHalfWidth().y;
+
+			if (rootMin.z > boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z - boInstance->GetGrandBoundingObject()->GetHalfWidth().z)
+				rootMin.z = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z - boInstance->GetGrandBoundingObject()->GetHalfWidth().z;
+			else if (rootMax.z < boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z + boInstance->GetGrandBoundingObject()->GetHalfWidth().z)
+				rootMax.z = boInstance->GetGrandBoundingObject()->GetCentroidGlobal().z + boInstance->GetGrandBoundingObject()->GetHalfWidth().z;
+		}
+
+		// find the centroid of the root cube
+		octantCentroid = (rootMin + rootMax) / 2.0f;
+
+		// calculate that shit
+		if (edgeLength < glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0)))
+			edgeLength = glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0));
+		if (edgeLength < glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0)))
+			edgeLength = glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0));
+		if (edgeLength < glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0)))
+			edgeLength = glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0));
 	}
-
-	// find the centroid of the root cube
-	octantCentroid = (rootMin + rootMax) / 2.0f;
-
-	// calculate that shit
-	if (edgeLength < glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0)))
-		edgeLength = glm::distance(vector3(rootMin.x, 0, 0), vector3(rootMax.x, 0, 0));
-	if (edgeLength < glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0)))
-		edgeLength = glm::distance(vector3(rootMin.y, 0, 0), vector3(rootMax.y, 0, 0));
-	if (edgeLength < glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0)))
-		edgeLength = glm::distance(vector3(rootMin.z, 0, 0), vector3(rootMax.z, 0, 0));
 }
 
 
@@ -191,8 +194,8 @@ String OctantCustom::DetectBullet(vector3 bulletCentroid, MeshManagerSingleton* 
 	else
 	{
 		BoundingObjectClass* bullet = new BoundingObjectClass(bulletCentroid, 1);
-		bullet->SetVisibleOBB(true);
-		bullet->Render(false);
+		//bullet->SetVisibleOBB(true);
+		//bullet->Render(false);
 
 		if (bullet->IsColliding(*octBO))
 		{
