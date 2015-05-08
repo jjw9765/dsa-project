@@ -40,7 +40,9 @@ void ApplicationClass::InitUserAppVariables()
 		}
 
 		// load the enemy
-		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", "Cow", glm::translate(vector3(randX, randY, randZ)));
+		String tempName = "Cow";
+		tempName += std::to_string(nEnemy);
+		m_pMeshMngr->LoadModelUnthreaded("Minecraft\\MC_Cow.obj", tempName, glm::translate(vector3(randX, randY, randZ)));
 	}
 
 	//set initial sphere location
@@ -54,7 +56,7 @@ void ApplicationClass::InitUserAppVariables()
 	// Create a vector holding all objects in the scene
 	int numInstances = m_pMeshMngr->GetNumberOfInstances();
 	for (int i = 0; i < numInstances; i++)
-		listObjects.push_back(m_pMeshMngr->GetBoundingObject(i));
+		listObjects.push_back(m_pMeshMngr->GetInstanceByName("Cow" + std::to_string(i)));
 }
 void ApplicationClass::Update (void)
 {
@@ -79,12 +81,49 @@ void ApplicationClass::Update (void)
 		m_pMeshMngr->SetModelMatrix(m_m4SelectedObject, m_sSelectedObject); //Setting up the Model Matrix
 	}
 
-	//sphere physics calculations
-	Physics(fTimeSpan,m_fShotTime, m_v3Direction);
-
 	// OctTree this game up
 	OctantCustom* newOctTree = new OctantCustom(m_pMeshMngr, listObjects);
-	newOctTree->DetectBullet(m_v3SphereCentroid, m_pMeshMngr);
+	
+	// get the most recent dying ship and compare it to current dying ships
+	String dyingShipName = newOctTree->DetectBullet(m_v3SphereCentroid, m_pMeshMngr);
+	if (dyingShipName.compare("lol") != 0)
+	{
+		bool doesExist = false;
+
+		// check if it exists already to prevent bad memory
+		for (InstanceClass* dyingShip : dyingShips)
+		{
+			if (dyingShip->GetName().compare(dyingShipName) == 0)
+				doesExist = true;
+		}
+
+		// if freshly dying, add to Dying Note
+		if (doesExist == false)
+		{
+			std::cout << "Ship Dying: " << dyingShipName << std::endl;
+			dyingShips.push_back(m_pMeshMngr->GetInstanceByName(dyingShipName));
+		}
+	}
+
+	for (InstanceClass* dead : deadShips)
+	{
+		if (dead->GetName().compare("DeadCow") != 0)
+		{
+			dead->SetVisible(false);
+
+			int deadIndex = atoi(dead->GetName().substr(3).c_str());
+
+			std::cout << "Ship YOLO'd: " << dead->GetName() << std::endl;
+
+			dyingShips.erase(dyingShips.begin());
+			listObjects.erase(listObjects.begin() + deadIndex);
+
+			dead->SetName("DeadCow");
+		}
+	}
+
+	//sphere physics calculations
+	Physics(fTimeSpan,m_fShotTime, m_v3Direction);
 
 	printf("FPS: %d\r", m_pSystem->FPS);//print the Frames per Second	
 }
@@ -93,11 +132,42 @@ void ApplicationClass::Physics(float fTimeSpan, float fShotTime, vector3 v3direc
 {
 	vector3 tempGrav = vector3(0.0f,fShotTime * -0.1f,0.0f);
 	vector3 tempVel = fTimeSpan * (v3direction * 60.0f);
+	vector3 shipFall = fTimeSpan * vector3(0.0f,-5.0f,0.0f);
 	m_v3SphereCentroid = m_v3SphereCentroid + tempGrav + tempVel;
 
 	matrix4 gravity = glm::translate(tempGrav);//gravity translation
 	matrix4 translate = glm::translate(tempVel);//velocity translation
 	m_m4Sphere = m_m4Sphere * translate * gravity;//apply translations
+
+	// physics for the Dying Note ships
+	for (InstanceClass* moo : dyingShips)
+	{
+		// spiral and moooove down in a dying fashion
+		moo->SetModelMatrix(moo->GetModelMatrix() * glm::rotate(matrix4(IDENTITY),fTimeSpan * 90.0f, vector3(1.0f)) * glm::translate(shipFall));
+
+		vector4 yPos = (moo->GetModelMatrix() * vector4(0.0f,1.0f,0.0f,1.0f));
+
+		// kill once below y = -20.0f
+		if (yPos.y < -20.0f)
+		{
+			bool doesExist = false;
+
+			// check if it exists already to prevent bad memory
+			for (InstanceClass* deadShip : deadShips)
+			{
+				if (deadShip->GetName().compare(moo->GetName()) == 0)
+					doesExist = true;
+			}
+
+			// if freshly dying, add to Death Note
+			if (doesExist == false)
+			{
+				std::cout << "Ship Died: " << moo->GetName() << std::endl;
+				deadShips.push_back(m_pMeshMngr->GetInstanceByName(moo->GetName()));
+			}
+		}
+	}
+
 	m_pMeshMngr->AddSphereToQueue(m_m4Sphere, vector3(0.0f,0.0f,0.0f), 1);//render sphere
 	//m_pMeshMngr->AddAxisToQueue(glm::translate(m_v3SphereCentroid));//render centroid vector for debugging
 }

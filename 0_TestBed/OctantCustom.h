@@ -10,13 +10,13 @@ static const int MAX_OBJS_PER_OCTANT = 1;
 class OctantCustom
 {
 	public:
-		OctantCustom(MeshManagerSingleton*, std::vector<BoundingObjectClass*>);
-		OctantCustom(MeshManagerSingleton*, std::vector<BoundingObjectClass*>, int, int, vector3, float);
+		OctantCustom(MeshManagerSingleton*, std::vector<InstanceClass*>);
+		OctantCustom(MeshManagerSingleton*, std::vector<InstanceClass*>, int, int, vector3, float);
 		~OctantCustom(void);
-		void CreateOctant(MeshManagerSingleton*, std::vector<BoundingObjectClass*>);
-		void SubdivideOctant(MeshManagerSingleton*, std::vector<BoundingObjectClass*>);
+		void CreateOctant(MeshManagerSingleton*, std::vector<InstanceClass*>);
+		void SubdivideOctant(MeshManagerSingleton*, std::vector<InstanceClass*>);
 		void RenderOctant(MeshManagerSingleton*);
-		void DetectBullet(vector3 bulletCentroid, MeshManagerSingleton*);
+		String DetectBullet(vector3 bulletCentroid, MeshManagerSingleton*);
 		int TestOBBOBB(BoundingObjectClass* a, BoundingObjectClass* b);
 
 		bool isLeaf;		// helps prevent further subdivs from happening
@@ -27,7 +27,7 @@ class OctantCustom
 		BoundingObjectClass* octBO;
 		OctantCustom* parentOctant;				// Parent of this octant; if none, it's the root
 		std::vector<OctantCustom*> childrenOctants;		// all 8 children of this octant; if none, it's a leaf
-		std::vector<BoundingObjectClass*> internalBoundingObjects;		// contains all objects that are colliding/inside with this octant
+		std::vector<InstanceClass*> internalBoundingObjects;		// contains all objects that are colliding/inside with this octant
 };
 
 #endif // __OctantCustom_H_

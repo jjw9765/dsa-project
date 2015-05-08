@@ -40,7 +40,9 @@ class ApplicationClass
 	CameraSingleton* m_pCamera; // Singleton for the camera that represents our scene
 	vector4 m_v4ClearColor;//Color of the scene
 
-	std::vector<BoundingObjectClass*> listObjects; // A vector to hold all objects that were created at Runtime
+	std::vector<InstanceClass*> listObjects; // A vector to hold all objects that were created at Runtime
+	std::vector<InstanceClass*> dyingShips; // A vector to hold all dying cows
+	std::vector<InstanceClass*> deadShips; // A vector to hold all dead cows
 	
 public:
 	/*
