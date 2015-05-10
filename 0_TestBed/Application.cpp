@@ -28,13 +28,13 @@ void ApplicationClass::InitUserAppVariables()
 		{
 			for(int j = 0; j < enemyLocs.size(); j++)
 			{
-				if(randX <= enemyLocs[j].x + 150 && randX >= enemyLocs[j].x - 150)
+				if(randX <= enemyLocs[j].x + 250 && randX >= enemyLocs[j].x - 250)
 					randX = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 
-				if(randY <= enemyLocs[j].y + 150 && randY >= enemyLocs[j].y - 150)
+				if(randY <= enemyLocs[j].y + 250 && randY >= enemyLocs[j].y - 250)
 					randY = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 
-				if(randZ <= enemyLocs[j].z + 150 && randZ >= enemyLocs[j].z - 150)
+				if(randZ <= enemyLocs[j].z + 250 && randZ >= enemyLocs[j].z - 250)
 					randZ = (float)(rand() % maxSpawnDistance - maxSpawnDistance/2);
 			}
 		}

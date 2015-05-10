@@ -167,7 +167,7 @@ void ApplicationClass::ProcessMouse(void)
 		m_bFPC = true;
 
 	static bool bLeft_Released = false;
-	if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+	/*if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
 		bLeft_Released = true;
 	}
@@ -192,7 +192,7 @@ void ApplicationClass::ProcessMouse(void)
 			}
 		}
 		bLeft_Released = false;
-	}
+	}*/
 }
 void ApplicationClass::ProcessJoystick(void)
 {
